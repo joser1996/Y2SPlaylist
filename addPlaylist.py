@@ -24,7 +24,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
-CLIENT_SECRETS_FILE = 'client_secret.json'
+CLIENT_SECRETS_FILE = 'secret.json'
 
 # This OAuth 2.0 access scope allows for full read/write access to the
 # authenticated user's account.
@@ -55,7 +55,11 @@ def add_playlist(youtube, args):
     body=body
   ).execute()
 
-  print 'New playlist ID: %s' % playlists_insert_response['id']
+  print("response:")
+  print(playlists_insert_response)
+  print()
+
+  print('New playlist ID: %s' % playlists_insert_response['id'])
 
 if __name__ == '__main__':
 
@@ -72,5 +76,5 @@ if __name__ == '__main__':
   youtube = get_authenticated_service()
   try:
     add_playlist(youtube, args)
-  except HttpError, e:
-    print 'An HTTP error %d occurred:\n%s' % (e.resp.status, e.content)
+  except(HttpError, e):
+    print('An HTTP error %d occurred:\n%s' % (e.resp.status, e.content))
