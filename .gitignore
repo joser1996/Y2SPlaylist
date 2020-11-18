@@ -2,3 +2,4 @@ apiKey.txt
 secret.json
 token.txt
 Playground/
+__pycache__/
