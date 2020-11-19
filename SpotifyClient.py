@@ -94,13 +94,32 @@ class SpotifyClient:
             print("Token is fresh.")
 
     # Method to insert a song or possiblly a list of songs
-    def insertSongs(self, songs):
-        print("TODO")
+    #default to the test playlist
+    def insertSongs(self, songs, id='5O7l46N1wPZuqHDjOygRuF'):
+        endPoint = 'https://api.spotify.com/v1/playlists/' + id +'/tracks'
+        pickle_in = open("access_token.pkl", "rb")
+        token_obj = pickle.load(pickle_in)
+        a_token = token_obj['token']
+        pickle_in.close()
+
+        body = {
+            'uris': songs
+        }
+        header = {
+            'Authorization': a_token,
+            'Content-Type': 'application/json'
+        }
+        res = requests.post(
+            url=endPoint,
+            data=body,
+            headers=header
+        )
+        print("Insert Res: ", res.json())
 
     def searchTrack(self, songName):
         print("TODO")
-    #default to the test playlist
-    def getPlaylists(self, id='5O7l46N1wPZuqHDjOygRuF'):
+
+    def getPlaylists(self):
         url = 'https://api.spotify.com/v1/me/playlists'
         #load in the current access token
         pickle_in = open("access_token.pkl", "rb")
