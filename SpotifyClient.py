@@ -78,6 +78,12 @@ class SpotifyClient:
         pickle.dump(token_obj, pkl_out)
         pkl_out.close()
 
+    def getCurrentToken(self):
+        fp = open("access_token.pkl", "rb")
+        token = pickle.load(fp)
+        fp.close()
+        return token['token']
+
 
     def tokenIsCurrent(self):
         pickle_in = open("origin_time.pkl", "rb")
@@ -97,27 +103,42 @@ class SpotifyClient:
     #default to the test playlist
     def insertSongs(self, songs, id='5O7l46N1wPZuqHDjOygRuF'):
         endPoint = 'https://api.spotify.com/v1/playlists/' + id +'/tracks'
-        pickle_in = open("access_token.pkl", "rb")
-        token_obj = pickle.load(pickle_in)
-        a_token = token_obj['token']
-        pickle_in.close()
+        print(endPoint)
+        a_token = self.getCurrentToken()
+        ar = []
+        for song in songs:
+            uri = self.getTrackURI(song)
+            ar.append(uri)
 
-        body = {
-            'uris': songs
-        }
+        print("URIS: ", ar)
+        body = {'uris': ar, 'position': 0}
+        print("Body: ")
+        print(json.dumps(body))
         header = {
-            'Authorization': a_token,
+            'Authorization': 'Bearer {}'.format(a_token),
             'Content-Type': 'application/json'
         }
         res = requests.post(
             url=endPoint,
-            data=body,
+            json=body,
             headers=header
         )
         print("Insert Res: ", res.json())
+        print(res)
 
-    def searchTrack(self, songName):
-        print("TODO")
+    def getTrackURI(self, songName):
+        #this is a GET request
+        endPoint = 'https://api.spotify.com/v1/search?'
+        header = {'Authorization': 'Bearer ' + self.getCurrentToken()}
+        types = 'track'
+        songNameEncoded = songName.replace(" ", "%20")
+        q = "q=track:" + songNameEncoded + "&type=track&limit=1"
+        url = endPoint + q
+        res = requests.get(url=url, headers=header)
+        res_json = res.json()
+        print(json.dumps(res_json, indent=2))
+        return res_json['tracks']['items'][0]['uri']
+
 
     def getPlaylists(self):
         url = 'https://api.spotify.com/v1/me/playlists'

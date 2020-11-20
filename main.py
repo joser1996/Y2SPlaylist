@@ -20,8 +20,11 @@ def main():
     #spotify.requestTokens()
     #spotify.getMyPlaylists()
     #spotify.refreshToken()
-    spotify.tokenIsCurrent()
-    spotify.getPlaylists()
-    spotify.printPlaylists()
+    #spotify.tokenIsCurrent()
+    spotify.refreshToken()
+    #spotify.getPlaylists()
+    #spotify.printPlaylists()
+    songs = [ "a lot 21 savage"]
+    spotify.insertSongs(songs)
 if __name__ == "__main__":
     main()
