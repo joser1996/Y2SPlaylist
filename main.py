@@ -1,30 +1,34 @@
 from YouTubeClient import YouTubeClient
 from SpotifyClient import SpotifyClient
-
+from PlaylistSyncer import PlaylistSyncer
 import os
 
 
 def main():
     PL_ID = 'PLLsUFwLen8AoiE-DRsusGl5mwr6ysteGR'
     api_key = os.environ.get('API_KEY')
-    spotify_client_id = os.environ.get('SPOTIFY_CLIENT_ID')
-    spotify_client_secret = os.environ.get('SPOTIFY_SECRET')
+    #Initialize spotify and youtube client
     youtube = YouTubeClient(api_key, PL_ID)
+    spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
+    ps = PlaylistSyncer()
 
-    #get youtube playlist and print songs in playlist
-    # youtube.getPlaylistItems()
-    # youtube.printPlaylistItems()
+    #get song titles from YT(upstream) playlist
+    youtube.getPlaylistItems()
 
-    spotify = SpotifyClient(spotify_client_id, spotify_client_secret)
-    #spotify.requestAuthorizationURL()
-    #spotify.requestTokens()
-    #spotify.getMyPlaylists()
-    #spotify.refreshToken()
-    #spotify.tokenIsCurrent()
-    spotify.refreshToken()
-    #spotify.getPlaylists()
-    #spotify.printPlaylists()
-    songs = [ "a lot 21 savage"]
-    spotify.insertSongs(songs)
+    #Find the difference b/w local list and pulled list
+    songsToAdd = ps.getTrackDifferences(youtube.songs)
+
+    if  songsToAdd:
+        #Makesure spotify access token is still valid
+        spotify.refreshAccessToken()
+
+        #Attempt to insert songs to spotify playlist
+        spotify.insertSongs(songsToAdd)
+
+        #Update local list(write)
+        ps.addTracksToLocal(songsToAdd)
+    else:
+        print("Local seems up-to-date. Not pushing.")
+
 if __name__ == "__main__":
     main()

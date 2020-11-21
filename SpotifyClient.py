@@ -60,7 +60,6 @@ class SpotifyClient:
         )
         res_data = res.json()
         new_t = res_data.get('access_token')
-        print("New Token: ", new_t)
         current_time = round(time.time())
         obj_to_save = {
             "origin": current_time
@@ -85,7 +84,7 @@ class SpotifyClient:
         return token['token']
 
 
-    def tokenIsCurrent(self):
+    def refreshAccessToken(self):
         pickle_in = open("origin_time.pkl", "rb")
         obj = pickle.load(pickle_in)
 
@@ -103,17 +102,17 @@ class SpotifyClient:
     #default to the test playlist
     def insertSongs(self, songs, id='5O7l46N1wPZuqHDjOygRuF'):
         endPoint = 'https://api.spotify.com/v1/playlists/' + id +'/tracks'
-        print(endPoint)
         a_token = self.getCurrentToken()
         ar = []
         for song in songs:
-            uri = self.getTrackURI(song)
-            ar.append(uri)
+            try:
+                uri = self.getTrackURI(song)
+                ar.append(uri)
+            except:
+                print("Song: ", song, " NOT FOUND!")
 
         print("URIS: ", ar)
         body = {'uris': ar, 'position': 0}
-        print("Body: ")
-        print(json.dumps(body))
         header = {
             'Authorization': 'Bearer {}'.format(a_token),
             'Content-Type': 'application/json'
@@ -123,8 +122,8 @@ class SpotifyClient:
             json=body,
             headers=header
         )
-        print("Insert Res: ", res.json())
-        print(res)
+        print("Insert Response: ", res.json())
+
 
     def getTrackURI(self, songName):
         #this is a GET request
@@ -136,7 +135,7 @@ class SpotifyClient:
         url = endPoint + q
         res = requests.get(url=url, headers=header)
         res_json = res.json()
-        print(json.dumps(res_json, indent=2))
+        #print(json.dumps(res_json, indent=2))
         return res_json['tracks']['items'][0]['uri']
 
 
