@@ -22,22 +22,22 @@ class PlaylistSyncer:
     #playlist(youtube) yet to keep track of differences
     def getTrackDifferences(self, upstreamTrackList):
         differences = list(set(upstreamTrackList) - set(self.localTracks))
-        print("Track differences are: ", differences)
+        #print("Track differences are: ", differences)
         return differences
 
     def addTracksToLocal(self, tracks):
         for track in tracks:
             self.localTracks.append(track)
-        self.writeLocalTracks(self.localTracks)
+        self.writeLocalTracks()
         print("Added tracks to local")
 
     def eraseLocalTracks(self):
         self.localTracks = []
-        self.writeLocalTracks(self.localTracks)
+        self.writeLocalTracks()
         print("Deleted local tracks")
 
-    def writeLocalTracks(self, tracks):
+    def writeLocalTracks(self):
         fp = open("local_tracks.pkl", "wb")
-        obj = {'trackList': tracks}
+        obj = {'trackList': self.localTracks}
         pickle.dump(obj, fp)
         fp.close()

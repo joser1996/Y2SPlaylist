@@ -6,7 +6,7 @@ import base64
 import time
 import sys
 import pickle
-
+import re
 class SpotifyClient:
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
@@ -14,6 +14,7 @@ class SpotifyClient:
         self.authEndpoint = 'https://accounts.spotify.com/authorize?'
         self.tokenEndpoint = 'https://accounts.spotify.com/api/token'
         self.uri = os.environ.get('SPOTIFY_URI')
+        self.uris = []
 
     def requestAuthorizationURL(self):
         getVars = {
@@ -111,7 +112,11 @@ class SpotifyClient:
             except:
                 print("Song: ", song, " NOT FOUND!")
 
-        print("URIS: ", ar)
+        #print("URIS: ", ar)
+        self.uris = ar
+        if not ar:
+            return
+
         body = {'uris': ar, 'position': 0}
         header = {
             'Authorization': 'Bearer {}'.format(a_token),
@@ -129,14 +134,46 @@ class SpotifyClient:
         #this is a GET request
         endPoint = 'https://api.spotify.com/v1/search?'
         header = {'Authorization': 'Bearer ' + self.getCurrentToken()}
-        types = 'track'
-        songNameEncoded = songName.replace(" ", "%20")
-        q = "q=track:" + songNameEncoded + "&type=track&limit=1"
+        q = self.makeQuery(songName)
+        print("Q: ", q)
         url = endPoint + q
         res = requests.get(url=url, headers=header)
         res_json = res.json()
         #print(json.dumps(res_json, indent=2))
         return res_json['tracks']['items'][0]['uri']
+
+
+    def makeQuery(self, songName):
+        #attempt to seperate into artist and song
+        query = "q="
+        #some pre processing remove (), anything after ft.
+        splitString = songName.split("ft.")[0]
+        if splitString:
+            songName = splitString
+
+        splitString = songName.split("(")[0]
+        if splitString:
+            songName = splitString
+
+        splitString = songName.split("[")[0]
+        if splitString:
+            songName = splitString
+        try:
+            maxSplit = 1
+            splittedString = songName.split('-', maxSplit)
+            if splittedString[1][0] == ' ':
+                splittedString[1] = splittedString[1][1:]
+
+            artist = splittedString[0].replace(" ", "%20")
+            trackName = splittedString[1].replace(" ", "%20")
+            query = query + "artist:" + artist
+            query = query + "track:" + trackName
+            query = query + "&type=track&limit=1"
+            return query
+        except:
+            trackname = songName.replace(" ", "%20")
+            query = query + "track:" + trackName + "&type=track&limit=1"
+            return query
 
 
     def getPlaylists(self):

@@ -12,6 +12,9 @@ def main():
     spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
     ps = PlaylistSyncer()
 
+    #Deleting local tracks to retry
+    #ps.eraseLocalTracks()
+
     #get song titles from YT(upstream) playlist
     youtube.getPlaylistItems()
 
@@ -24,9 +27,11 @@ def main():
 
         #Attempt to insert songs to spotify playlist
         spotify.insertSongs(songsToAdd)
+        if(spotify.uris):
+            #Update local list(write)
+            ps.addTracksToLocal(songsToAdd)
 
-        #Update local list(write)
-        ps.addTracksToLocal(songsToAdd)
+
     else:
         print("Local seems up-to-date. Not pushing.")
 
