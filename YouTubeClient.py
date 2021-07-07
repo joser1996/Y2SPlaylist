@@ -12,7 +12,6 @@ class YouTubeClient:
 
     def getPlaylistItems(self):
         try:
-
             nextPageToken = None
             while True:
                 request = self.youtube.playlistItems().list(
@@ -47,3 +46,4 @@ class YouTubeClient:
 
     def printPlaylist(self):
         print(json.dumps(self.playlist, indent=2))
+ 

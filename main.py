@@ -1,14 +1,15 @@
 from YouTubeClient import YouTubeClient
 from SpotifyClient import SpotifyClient
 from PlaylistSyncer import PlaylistSyncer
+
+from dotenv import load_dotenv
 import os
 
 
 def main():
-    PL_ID = 'PLLsUFwLen8AoiE-DRsusGl5mwr6ysteGR'
-    api_key = os.environ.get('API_KEY')
+    load_dotenv()
     #Initialize spotify and youtube client
-    youtube = YouTubeClient(api_key, PL_ID)
+    youtube = YouTubeClient(os.environ.get('GOOGLE_API_KEY'), os.environ.get('PL_ID'))
     spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
     ps = PlaylistSyncer()
 
@@ -17,7 +18,7 @@ def main():
 
     #get song titles from YT(upstream) playlist
     youtube.getPlaylistItems()
-
+    
     #Find the difference b/w local list and pulled list
     songsToAdd = ps.getTrackDifferences(youtube.songs)
 
@@ -37,3 +38,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+ 

@@ -41,3 +41,4 @@ class PlaylistSyncer:
         obj = {'trackList': self.localTracks}
         pickle.dump(obj, fp)
         fp.close()
+ 
