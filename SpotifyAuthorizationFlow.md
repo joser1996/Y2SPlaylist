@@ -1,6 +1,6 @@
 # Authorization Scheme
-In order to have the user approve your app for access to user private spotify
-data the app must be verified.
+In order to have the user approve your app for access to user private
+spotify data the app must be verified.
 
 * App Authorization - Spotify authorizes your app to acces the spotify
   platform(Apis, SDKS, etc)
@@ -16,7 +16,7 @@ There are three parties
 Allows your application to access specific API endpoints on behalf of the user.
 
 ## Example
-This code generates a reques for hte scopes user-read-private and
+This code generates a reques for the scopes user-read-private and
 user-read-email.
 
 	var.scopes = 'user-read-private user-read-email';
@@ -41,7 +41,7 @@ their data.
 
 You get: An **access token** and a **refresh token**
 
-you use the refresh tokents ot extend the valididyt of the access token.
+you use the refresh tokens to extend the validity of the access token.
 ## Authorization Code with PKCE
 
 ## Client Credintials

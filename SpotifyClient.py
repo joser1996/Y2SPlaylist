@@ -7,6 +7,7 @@ import time
 import sys
 import pickle
 import re
+
 class SpotifyClient:
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
@@ -26,6 +27,7 @@ class SpotifyClient:
         url = self.authEndpoint + urllib.parse.urlencode(getVars)
         print(url)
 
+    # Might not be necessary???????????????
     def requestTokens(self):
         code = os.environ.get('SPOTIFY_AUTH')
         body = {
@@ -84,7 +86,7 @@ class SpotifyClient:
         fp.close()
         return token['token']
 
-
+    #Accessing the refresh token (loading from pkl file)
     def refreshAccessToken(self):
         pickle_in = open("origin_time.pkl", "rb")
         obj = pickle.load(pickle_in)

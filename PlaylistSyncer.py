@@ -1,5 +1,6 @@
 
 import pickle
+
 class PlaylistSyncer:
     def __init__(self):
         #Attempt to load in local list of tracks
