@@ -5,3 +5,4 @@ Playground/
 __pycache__/
 *.pkl
 secrets/
+.env
