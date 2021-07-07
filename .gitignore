@@ -1,6 +1,7 @@
 apiKey.txt
 secret.json
 token.txt
-Playground/*
+Playground/
 __pycache__/
 *.pkl
+secrets/
