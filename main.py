@@ -12,7 +12,7 @@ def main():
     youtube = YouTubeClient(os.environ.get('GOOGLE_API_KEY'), os.environ.get('PL_ID'))
     spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
     ps = PlaylistSyncer()
-
+    spotify.requestAuthorizationURL()
     #Deleting local tracks to retry
     #ps.eraseLocalTracks()
 

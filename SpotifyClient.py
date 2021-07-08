@@ -12,7 +12,7 @@ class SpotifyClient:
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
         self.client_secret = client_secret
-        self.authEndpoint = 'https://accounts.spotify.com/authorize?'
+        self.authAppEndpoint = 'https://accounts.spotify.com/authorize?'
         self.tokenEndpoint = 'https://accounts.spotify.com/api/token'
         self.uri = os.environ.get('SPOTIFY_URI')
         self.uris = []
@@ -24,7 +24,7 @@ class SpotifyClient:
             'redirect_uri': self.uri,
             'scope': 'playlist-read-private playlist-modify-private'
         }
-        url = self.authEndpoint + urllib.parse.urlencode(getVars)
+        url = self.authAppEndpoint + urllib.parse.urlencode(getVars)
         print(url)
 
     # Might not be necessary???????????????
