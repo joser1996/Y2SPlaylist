@@ -12,99 +12,13 @@ class SpotifyClient:
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
         self.client_secret = client_secret
-        self.authAppEndpoint = 'https://accounts.spotify.com/authorize?'
-        self.tokenEndpoint = 'https://accounts.spotify.com/api/token'
-        self.uri = os.environ.get('SPOTIFY_URI')
         self.uris = []
-
-    def requestAuthorizationURL(self):
-        getVars = {
-            'client_id': self.client_id,
-            'response_type': 'code',
-            'redirect_uri': self.uri,
-            'scope': 'playlist-read-private playlist-modify-private'
-        }
-        url = self.authAppEndpoint + urllib.parse.urlencode(getVars)
-        print(url)
-
-    # Might not be necessary???????????????
-    def requestTokens(self):
-        code = os.environ.get('SPOTIFY_AUTH')
-        body = {
-            'grant_type': 'authorization_code',
-            'code': code ,
-            'redirect_uri': self.uri
-        }
-
-        response = requests.post(
-            url,
-            auth=(self.client_id, self.client_secret),
-            data=body,
-        )
-        print(response.json())
-
-    #request new token and save time of origin
-    def refreshToken(self):
-        url = 'https://accounts.spotify.com/api/token'
-        r_token = os.environ.get('SPOTIFY_RT')
-
-        payload = {
-            'grant_type': 'refresh_token',
-            'refresh_token': r_token
-        }
-        header= {
-            'Authorization': 'application/x-www-form-urlencoded'
-        }
-        res = requests.post(
-            url,
-            auth=(self.client_id, self.client_secret),
-            data=payload,
-            headers=header
-        )
-        res_data = res.json()
-        new_t = res_data.get('access_token')
-        current_time = round(time.time())
-        obj_to_save = {
-            "origin": current_time
-        }
-        #save the origin time as a pkl file
-        pickle_out = open("origin_time.pkl", "wb")
-        pickle.dump(obj_to_save, pickle_out)
-        pickle_out.close()
-
-        #save the new token
-        token_obj = {
-            "token": new_t
-        }
-        pkl_out = open("access_token.pkl", "wb")
-        pickle.dump(token_obj, pkl_out)
-        pkl_out.close()
-
-    def getCurrentToken(self):
-        fp = open("access_token.pkl", "rb")
-        token = pickle.load(fp)
-        fp.close()
-        return token['token']
-
-    #Accessing the refresh token (loading from pkl file)
-    def refreshAccessToken(self):
-        pickle_in = open("origin_time.pkl", "rb")
-        obj = pickle.load(pickle_in)
-
-        origin_time = obj["origin"]
-        current_time = round(time.time())
-        delta_time = current_time - origin_time
-        ONE_HOUR = 3600
-        if (delta_time > ONE_HOUR or current_time < origin_time ):
-            print("Refreshing TOKEN")
-            self.refreshToken()
-        else:
-            print("Token is fresh.")
 
     # Method to insert a song or possiblly a list of songs
     #default to the test playlist
     def insertSongs(self, songs, id='5O7l46N1wPZuqHDjOygRuF'):
         endPoint = 'https://api.spotify.com/v1/playlists/' + id +'/tracks'
+        tokens = pickle.load(open('tokens.pkl', 'rb'))
         a_token = self.getCurrentToken()
         ar = []
         for song in songs:
@@ -131,6 +45,9 @@ class SpotifyClient:
         )
         print("Insert Response: ", res.json())
 
+    def getCurrentToken(self):
+        tokens = pickle.load(open('tokens.pkl', 'rb'))
+        return tokens['access_token']
 
     def getTrackURI(self, songName):
         #this is a GET request
@@ -176,7 +93,6 @@ class SpotifyClient:
             trackname = songName.replace(" ", "%20")
             query = query + "track:" + trackName + "&type=track&limit=1"
             return query
-
 
     def getPlaylists(self):
         url = 'https://api.spotify.com/v1/me/playlists'
