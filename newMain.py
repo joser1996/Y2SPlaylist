@@ -10,12 +10,16 @@ load_dotenv()
 if(not tokenIsFresh()):
 	refreshAccessToken()
 
-youtube = YouTubeClient(os.environ.get('GOOGLE_API_KEY'), os.environ.get('PL_ID'))
 spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
-ps = PlaylistSyncer()
 
+youtube = YouTubeClient(os.environ.get('GOOGLE_API_KEY'), os.environ.get('PL_ID'))
 youtube.getPlaylistItems()
 
+ps = PlaylistSyncer()
+
+#compares songs from youtube to song titles in 'local_tracks.pkl'
+#Songs not found in local_tracks are songs that have not been 
+#attempted to be added in spotify playlist
 songs_to_add = ps.getTrackDifferences(youtube.songs)
 
 if songs_to_add:

@@ -8,3 +8,4 @@ secrets/
 .env
 *.pyc
 .myenv/
+test.py

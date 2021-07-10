@@ -1,7 +1,7 @@
 import pickle
 import time
 import requests
-
+import os
 def tokenIsFresh():
 	fp = open('origin.pkl', 'rb')
 	obj = pickle.load(fp)
@@ -11,7 +11,7 @@ def tokenIsFresh():
 	ONE_HOUR = 3600
 	if (delta_time > ONE_HOUR or current_time < origin_time):
 		print("Refreshing Tokens")
-		return false
+		return False
 	else:
 		print("Token is fresh.")
 		return True

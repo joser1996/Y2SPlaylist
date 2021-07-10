@@ -16,6 +16,7 @@ class SpotifyClient:
 
     # Method to insert a song or possiblly a list of songs
     #default to the test playlist
+    #need to get spotify ID from url on playlist homepage on spotify webplayer
     def insertSongs(self, songs, id='5O7l46N1wPZuqHDjOygRuF'):
         endPoint = 'https://api.spotify.com/v1/playlists/' + id +'/tracks'
         tokens = pickle.load(open('tokens.pkl', 'rb'))
