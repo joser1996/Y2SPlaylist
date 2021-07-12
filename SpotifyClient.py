@@ -110,17 +110,20 @@ class SpotifyClient:
         )
         res_json = response.json()
         pls = {}
+        ls = []
         try:
             for item in res_json["items"]:
                 id = item['id']
                 name = item['name']
                 pls[id] = name
+                ls.append(name)
         except:
             print("updateMyPlaylists Failed")
             print(res_json)
         pickle_out = open("playlists.pkl", "wb")
         pickle.dump(pls, pickle_out)
         pickle_out.close()
+        return ls
 
     def printPlaylists(self):
         fp = open("playlists.pkl", "rb")

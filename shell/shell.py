@@ -7,8 +7,9 @@ def main():
 	while choice != 'q':
 		menu.displayPrompts()
 		choice = input("What would you like to do?")
-		menu.displayTitle()
 		menu.processChoice(choice)
+		if choice != 'q':
+			menu.displayTitle()
 
 
 
