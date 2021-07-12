@@ -13,7 +13,7 @@ class SpotifyClient:
         self.client_id = client_id
         self.client_secret = client_secret
         self.uris = []
-
+        self.playlists = []
     # Method to insert a song or possiblly a list of songs
     #default to the test playlist
     #need to get spotify ID from url on playlist homepage on spotify webplayer
@@ -98,14 +98,11 @@ class SpotifyClient:
     def getPlaylists(self):
         url = 'https://api.spotify.com/v1/me/playlists'
         #load in the current access token
-        pickle_in = open("access_token.pkl", "rb")
-        token_obj = pickle.load(pickle_in)
-        a_token = token_obj['token']
-        pickle_in.close()
+        access_token = self.getCurrentToken()
         header = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + a_token
+            "Authorization": "Bearer " + access_token
         }
         response = requests.get(
             url=url,
@@ -126,10 +123,12 @@ class SpotifyClient:
         pickle_out.close()
 
     def printPlaylists(self):
-        pickle_in = open("playlists.pkl", "rb")
-        dict = pickle.load(pickle_in)
+        fp = open("playlists.pkl", "rb")
+        dict = pickle.load(fp)
         for id in dict:
             print(dict[id])
-        pickle_in.close()
+        fp.close()
+
+
 # TODO:  Look at response or figure out which songs were successfully inserted
  

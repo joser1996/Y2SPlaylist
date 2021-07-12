@@ -43,3 +43,10 @@ def refreshAccessToken():
 	fp = open('tokens.pkl', 'wb')
 	pickle.dump(tokens, fp)
 	fp.close()
+	#save origin time
+	origin_time = {
+		'origin_time': round(time.time())
+	}
+	fp = open('origin.pkl', 'wb')
+	pickle.dump(origin_time, fp)
+	fp.close()
