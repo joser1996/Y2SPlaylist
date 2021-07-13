@@ -45,7 +45,8 @@ def printList(ls):
 		lastItem = len(ls) - 1
 	currentItem = firstItem
 	print()
-	while currentPage <= numberOfPages:
+	RUNNING = True
+	while RUNNING:
 		if (currentItem + 1) >= len(ls):
 			printRow(ls[currentItem], None)
 		else:
@@ -54,30 +55,39 @@ def printList(ls):
 		if(currentItem >= lastItem):
 			choice = ''			
 			print("\n\n")
+			print(f"\t\t\t\tPage: {currentPage}/{numberOfPages}")
 			print("[P]:\tPrevious")
 			print("[N]:\tNext")
 			print("[Q]:\tQuit")
-			choice = input("What?")
-			if choice == 'p':
-				currentPage = currentPage - 1
-				if currentPage <= 0:
-					currentPage = 1
-				firstItem = (currentPage - 1) * itemsPerPage
-				lastItem = (currentPage * itemsPerPage) - 1
-				if lastItem > len(ls) - 1:
-					lastItem = len(ls) - 1
-				currentItem = firstItem
-			elif choice == 'n':
-				currentPage = currentPage + 1
-				firstItem = (currentPage - 1) * itemsPerPage
-				lastItem = (currentPage * itemsPerPage) - 1
-				if lastItem > len(ls) - 1:
-					lastItem = len(ls) - 1
-				currentItem = firstItem
-			elif choice == 'q':
-				break
-			displayTitle()
-			print()
+			while True:
+				choice = input("What?")
+				if choice == 'p':
+					currentPage = currentPage - 1
+					if currentPage <= 0:
+						currentPage = 1
+					firstItem = (currentPage - 1) * itemsPerPage
+					lastItem = (currentPage * itemsPerPage) - 1
+					if lastItem > len(ls) - 1:
+						lastItem = len(ls) - 1
+					currentItem = firstItem
+					displayTitle()
+					print()
+					break
+				elif choice == 'n':
+					currentPage = currentPage + 1
+					if currentPage > numberOfPages:
+						currentPage = numberOfPages
+					firstItem = (currentPage - 1) * itemsPerPage
+					lastItem = (currentPage * itemsPerPage) - 1
+					if lastItem > len(ls) - 1:
+						lastItem = len(ls) - 1
+					currentItem = firstItem
+					displayTitle()
+					print()
+					break
+				elif choice == 'q':
+					RUNNING = False
+					break
 
 
 def printRow(item1, item2):
