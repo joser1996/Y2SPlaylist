@@ -6,6 +6,7 @@ from pathlib import Path
 import math
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from SpotifyClient import SpotifyClient
+from YouTubeClient import YouTubeClient
 from helpers import *
 def printMessage(string):
 	print("Message: ", string)
@@ -35,6 +36,13 @@ def printSpotifyPlaylists():
 	playlists = sp.getPlaylists()
 	printList(playlists)
 
+def printYoutubePlaylists():
+	dotenv_path = Path('../.env')
+	load_dotenv()
+	yt = YouTubeClient(os.environ.get('GOOGLE_API_KEY'), os.environ.get('PL_ID'))
+	playlists = yt.getPlaylists()
+	printList(playlists)
+
 def printList(ls):
 	itemsPerPage = 6
 	numberOfPages = math.ceil(len(ls) / itemsPerPage)
@@ -58,7 +66,7 @@ def printList(ls):
 			print(f"\t\t\t\tPage: {currentPage}/{numberOfPages}")
 			print("[P]:\tPrevious")
 			print("[N]:\tNext")
-			print("[Q]:\tQuit")
+			print("[B]:\tQuit")
 			while True:
 				choice = input("What?")
 				if choice == 'p':
@@ -85,7 +93,7 @@ def printList(ls):
 					displayTitle()
 					print()
 					break
-				elif choice == 'q':
+				elif choice == 'b':
 					RUNNING = False
 					break
 

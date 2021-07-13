@@ -54,9 +54,10 @@ class YouTubeClient:
     def printPlaylist(self):
         print(json.dumps(self.playlist, indent=2))
     
-    def printPlaylists(self):
+    def getPlaylists(self):
         try:
             nextPageToken = None
+            ls = []
             while True:            
                 request = self.youtube.playlists().list(
                     part='snippet, id',
@@ -66,11 +67,13 @@ class YouTubeClient:
                 response = request.execute()                
                 items = response['items']
                 for item in items:
-                    print("Title: ", item['snippet']['title'])
-                    print("ID: ", item['id'])
+                    #print("Title: ", item['snippet']['title'])
+                    ls.append(item['snippet']['title'])
+                    #print("ID: ", item['id'])
                 nextPageToken = response.get('nextPageToken')
                 if not nextPageToken:
                     break
+            return ls
         except:
             e = sys.exc_info()[0]
             print(e)
