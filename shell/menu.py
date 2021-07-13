@@ -97,13 +97,18 @@ def printList(ls):
 					RUNNING = False
 					break
 
-
 def printRow(item1, item2):
 	print("\t****************************************************************")
 	print("\t\t", item1, "\t\t\t", item2)
 	print("\t****************************************************************")
 	print()
 
+#TODO: Create database to store linked playlist information
+def linkPlaylists():
+	print("Linking playlists")
+#TODO: Display linked playlists form the sqldatabase
+def printLinkedPlaylists():
+	print("Printing linked playlists")
 def processChoice(choice):
 	displayTitle()
 	if choice == '1':
