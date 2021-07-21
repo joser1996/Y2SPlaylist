@@ -4,10 +4,14 @@ from time import sleep
 from dotenv import load_dotenv
 from pathlib import Path
 import math
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+load_dotenv(Path('../.env'))
+sys.path.append(os.environ.get('CLASS_FOLDER_PATH'))
+sys.path.append(os.environ.get('ROOT_FOLDER_PATH'))
 from SpotifyClient import SpotifyClient
 from YouTubeClient import YouTubeClient
 from helpers import *
+
 def printMessage(string):
 	print("Message: ", string)
 
