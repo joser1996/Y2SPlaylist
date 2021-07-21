@@ -68,7 +68,9 @@ class YouTubeClient:
                 items = response['items']
                 for item in items:
                     #print("Title: ", item['snippet']['title'])
-                    ls.append(item['snippet']['title'])
+                    title = item['snippet']['title']
+                    plId = item['id']
+                    ls.append((title, plId))
                     #print("ID: ", item['id'])
                 nextPageToken = response.get('nextPageToken')
                 if not nextPageToken:
