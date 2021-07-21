@@ -160,7 +160,6 @@ def printSelectList(ls):
 					return number
 
 
-
 def printRow(item1, item2):
 	print("\t****************************************************************")
 	print("\t\t", item1, "\t\t\t", item2)
@@ -187,17 +186,40 @@ def linkPlaylists():
 	yt_titles = []
 	for item in yt_lists:
 		yt_titles.append(item[0])
-	printSelectList(yt_titles)
-	return
-	link = (yt_name, yt_id, sp_name, sp_id)
+	selected_index = printSelectList(yt_titles)
+	selected_yt = yt_lists[selected_index]
+
+	#get spotify playlist stuff
+	sp = SpotifyClient(os.environ.get("SPOTIFY_CLIENT_ID"), os.environ.get("SPOTIFY_SECRET"))
+	if(not tokenIsFresh()):
+		refreshAccessToken()
+
+	#Wipe screen here
+	displayTitle()
+	sp_lists = sp.getPlaylists()
+	sp_titles = []
+	for item in sp_lists:
+		sp_titles.append(item[0])
+	selected_index = printSelectList(sp_titles)
+	selected_sp = sp_lists[selected_index]
+
+	link = (selected_yt[0], selected_yt[1], selected_sp[0], selected_sp[1])
+
 	dbClient = DBClient()
 	dbClient.insertLink(link)
+	sleep(3)
+	dbClient.showLinks()
+	print("Dumping")
+	sleep(5)
 
 
-
-#TODO: Display linked playlists form the sqldatabase
 def printLinkedPlaylists():
-	print("Printing linked playlists")
+	dbClient = DBClient()
+	displayTitle()
+	print()
+	all_links = dbClient.showLinks()
+	printList(all_links)
+
 def processChoice(choice):
 	displayTitle()
 	if choice == '1':

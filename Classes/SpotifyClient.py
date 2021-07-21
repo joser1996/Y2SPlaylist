@@ -14,6 +14,7 @@ class SpotifyClient:
         self.client_secret = client_secret
         self.uris = []
         self.playlists = []
+        
     # Method to insert a song or possiblly a list of songs
     #default to the test playlist
     #need to get spotify ID from url on playlist homepage on spotify webplayer
@@ -111,19 +112,22 @@ class SpotifyClient:
         res_json = response.json()
         pls = {}
         ls = []
+        ret = []
         try:
             for item in res_json["items"]:
-                id = item['id']
+                plId = item['id']
                 name = item['name']
-                pls[id] = name
+                pls[plId] = name
                 ls.append(name)
+                ret.append((name, plId))
         except:
             print("updateMyPlaylists Failed")
             print(res_json)
         pickle_out = open("playlists.pkl", "wb")
         pickle.dump(pls, pickle_out)
         pickle_out.close()
-        return ls
+
+        return ret
 
     def printPlaylists(self):
         fp = open("playlists.pkl", "rb")

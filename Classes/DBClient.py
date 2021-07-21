@@ -51,9 +51,13 @@ class DBClient:
 		except self.db.connector.Error as err:
 			print("Error Number: ", err.errno)
 			print("Error Message: ", err.msg)
-			print("Error: ", err)		
+			print("Error: ", err)
+
+		pairs = []		
 		for (row_id, yt_playlist_name, yt_playlist_id, sp_playlist_name, sp_playlist_id) in cursor:
-			print("YT: {} ID: {}".format(yt_playlist_name, yt_playlist_id))
-			print("SP: {} ID: {}".format(sp_playlist_name, sp_playlist_id))
-			print("\n\n")
+			# print("\tYT_Playlist: {}\t ID: {}".format(yt_playlist_name, yt_playlist_id))
+			# print("\tSP_Playlist: {}\t ID: {}".format(sp_playlist_name, sp_playlist_id))
+			# print("\n")
+			pairs.append((yt_playlist_name, sp_playlist_name))
 		cursor.close()
+		return pairs
