@@ -23,6 +23,11 @@ class DBClient:
 			else:
 				print(err)
 
+	def processSQLError(self, err):
+		print("Error Number: ", err.errno)
+		print("Error Message: ", err.msg)
+		print("Error: ", err)
+
 	def insertLink(self, link):
 		query = """
 		INSERT INTO links
@@ -32,127 +37,79 @@ class DBClient:
 		cursor = self.db.cursor()
 		try:
 			cursor.execute(query, link)
-			print("Inserting Link: ", link)
 		except self.db.connector.Error as err:
-			print("Error Number: ", err.errno)
-			print("Error Message: ", err.msg)
-			print("Error: ", err)
-		print("Done inserting")
+			self.processSQLError(err)
 		self.db.commit()
 		cursor.close()
 
-	def showLinks(self):
-		query = """
-		SELECT * FROM links;
-		"""
-		cursor = self.db.cursor()
-		try:
-
-			cursor.execute(query)
-		except self.db.connector.Error as err:
-			print("Error Number: ", err.errno)
-			print("Error Message: ", err.msg)
-			print("Error: ", err)
-
-		pairs = []		
-		for (row_id, yt_playlist_name, yt_playlist_id, sp_playlist_name, sp_playlist_id) in cursor:
-			# print("\tYT_Playlist: {}\t ID: {}".format(yt_playlist_name, yt_playlist_id))
-			# print("\tSP_Playlist: {}\t ID: {}".format(sp_playlist_name, sp_playlist_id))
-			# print("\n")
-			pairs.append((yt_playlist_name, sp_playlist_name))
-		cursor.close()
-		return pairs
-
 	def getLinks(self):
-		query = """
-		SELECT * FROM links;
-		"""
+		query = "SELECT * FROM links;"
 		cursor = self.db.cursor()
 		try:
 			cursor.execute(query)
 		except self.db.connector.Error as err:
-			print("Error Number: ", err.errno)
-			print("Error Message: ", err.msg)
-			print("Error: ", err)
-		links = []
-		for(row_id, yt_playlist_name, yt_playlist_id, sp_playlist_name, sp_playlist_id) in cursor:
-			links.append((yt_playlist_id, sp_playlist_id))
+			self.processSQLError(err)
+		links = {}
+		for(link_id, yt_name, yt_id, sp_name, sp_id) in cursor:
+			links[link_id] = (yt_name, yt_id, sp_name, sp_id)
+
 		cursor.close()
 		return links
 
-
 	def getLinkId(self, yt_pl_id,sp_pl_id):
-		getIdQuery = """
-		SELECT id FROM links WHERE yt_playlist_id = %s AND sp_playlist_id = %s 
-		"""
+		getIdQuery = "SELECT id FROM links WHERE yt_playlist_id = %s AND sp_playlist_id = %s;"
 		cursor = self.db.cursor()
 		try:
 			cursor.execute(getIdQuery, (yt_pl_id, sp_pl_id))
 		except self.db.connector.Error as err:
-			print("Error Number: ", err.errno)
-			print("Error Message: ", err.msg)
-			print("Error: ", err)
+			self.processSQLError(err)
 		lid = None
+		if not cursor.rowcount:
+			print("No results found for linkID")
+			return lid
 		for (link_id) in cursor:
 			lid = link_id
 			break
 		cursor.close()
-		return lid
+		return lid[0]
 
+	#returns list of track names to be proccessed(YT Songs) else returns None
 	def getTrackDifferences(self, yt_pl_id, sp_pl_id, yt_songs):
-		#first get link id using playlist ids
 		link_id = self.getLinkId(yt_pl_id, sp_pl_id)
-		print("Link ID found: ", link_id)
-		sleep(2)
+		if not link_id:
+			print(f"No Link was found.")
+			sleep(2)
+			return None
 
 		#get tracks that have already been processed
-		query = """
-		SELECT track_name, track_uri FROM processed_tracks WHERE link_id = %s;
-		"""
+		query = "SELECT track_name FROM processed_tracks WHERE link_id = %s;"
 		cursor = self.db.cursor()
 		try:
 			cursor.execute(query, (link_id))
 		except self.db.connector.Error as err:
-			print("Error Number: ", err.errno)
-			print("Error Message: ", err.msg)
-			print("Error: ", err)
+			self.processSQLError(err)
+		processed_titles = []
+		for (track_name) in cursor:
+			processed_titles.append(track_name)
+		songsToAdd = list(set(yt_songs) - set(processed_titles))
+		return songsToAdd
 
-		processed_tracks = []
-		for (track_name, track_uri) in cursor:
-			processed_tracks.append(track_name)
-		print("Processed Tracks in diff: ", processed_tracks)
-		differences = list(set(yt_songs) - set(processed_tracks))
-		print("Differences: ", differences)
-		sleep(2)
-		return differences
-
-
-	def addTracksToLocal(self, yt_pl_id, sp_pl_id, processed):
+	#processed has key:value pairs where key=uri, value = track name
+	def addTracksToLocal(self, yt_pl_id, sp_pl_id, addedTracks):
 		link_id = self.getLinkId(yt_pl_id, sp_pl_id)
-		query = """
-		INSERT INTO processed_tracks (link_id, track_name, track_uri) VALUES (%s, %s, %s);
-		"""
+		query = "INSERT INTO processed_tracks (link_id, track_name, track_uri) VALUES (%s, %s, %s);"
 		values = []
-		for each in processed:
-			values.append((link_id[0], each, "NA"))
-		print("Values to insert: ", values)
-		sleep(2)
+		for uri in processed:
+			track_name = processed[uri]
+			values.append((link_id, track_name, uri))
+
 		cursor = self.db.cursor()
 		try:
 			cursor.executemany(query, values)
 			self.db.commit()
 			print(cursor.rowcount, " was inserted")
+			sleep(2)
 		except self.db.connector.Error as err:
-			print("Error Number: ", err.errno)
-			print("Error Message: ", err.msg)
-			print("Error: ", err)		
+			self.processSQLError(err)
 		cursor.close()
 
-
-# CREATE TABLE processed_tracks(
-# 	id INT NOT NULL AUTO_INCREMENT,
-# 	link_id INT NOT NULL,
-# 	track_name TEXT NOT NULL,
-# 	track_uri TEXT NOT NULL, 
-# 	PRIMARY KEY(id)
-# );

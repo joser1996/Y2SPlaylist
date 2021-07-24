@@ -13,30 +13,28 @@ class SpotifyClient:
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
         self.client_secret = client_secret
-        self.uris = []
-        self.playlists = []
-        
-    # Method to insert a song or possiblly a list of songs
-    #default to the test playlist
-    #need to get spotify ID from url on playlist homepage on spotify webplayer
-    def insertSongs(self, songs, id='5O7l46N1wPZuqHDjOygRuF'):
+
+    """
+    Method inserts songs in spotify playlist with id: id
+    @songs: [string] -  an array of song titles
+    @id: string - the playlist id to which songs will be added
+    return: track_uris:[string] uris of songs that were added to spotify
+    """
+    def insertSongs(self, songs, id):
         endPoint = 'https://api.spotify.com/v1/playlists/' + id +'/tracks'
         tokens = pickle.load(open('tokens.pkl', 'rb'))
         a_token = self.getCurrentToken()
-        ar = []
+        track_uris = []
         for song in songs:
             try:
                 uri = self.getTrackURI(song)
-                ar.append(uri)
+                track_uris.append(uri)
             except:
                 print("Song: ", song, " NOT FOUND!")
-        sleep(2)
-        #print("URIS: ", ar)
-        self.uris = ar
-        if not ar:
+        if not track_uris:
             return
 
-        body = {'uris': ar, 'position': 0}
+        body = {'uris': track_uris, 'position': 0}
         header = {
             'Authorization': 'Bearer {}'.format(a_token),
             'Content-Type': 'application/json'
@@ -46,10 +44,11 @@ class SpotifyClient:
             json=body,
             headers=header
         )
-        print("Insert Response: ", res.json())
+        print("Done Inserting into spotify")
         sleep(3)
-        return ar
+        return track_uris 
 
+    #return: tokens:string
     def getCurrentToken(self):
         tokens = pickle.load(open('tokens.pkl', 'rb'))
         return tokens['access_token']
@@ -59,13 +58,12 @@ class SpotifyClient:
         endPoint = 'https://api.spotify.com/v1/search?'
         header = {'Authorization': 'Bearer ' + self.getCurrentToken()}
         q = self.makeQuery(songName)
-        print("Q: ", q)
+        #print("Q: ", q)
         url = endPoint + q
         res = requests.get(url=url, headers=header)
         res_json = res.json()
         #print(json.dumps(res_json, indent=2))
         return res_json['tracks']['items'][0]['uri']
-
 
     def makeQuery(self, songName):
         #attempt to seperate into artist and song
@@ -99,6 +97,7 @@ class SpotifyClient:
             query = query + "track:" + trackName + "&type=track&limit=1"
             return query
 
+    #return: ret:[(string, int)] returns all playlist names with their associated id
     def getPlaylists(self):
         url = 'https://api.spotify.com/v1/me/playlists'
         #load in the current access token
@@ -113,32 +112,16 @@ class SpotifyClient:
             headers=header
         )
         res_json = response.json()
-        pls = {}
-        ls = []
         ret = []
         try:
             for item in res_json["items"]:
                 plId = item['id']
                 name = item['name']
-                pls[plId] = name
-                ls.append(name)
                 ret.append((name, plId))
         except:
-            print("updateMyPlaylists Failed")
+            print("getPlaylists Failed")
             print(res_json)
-        pickle_out = open("playlists.pkl", "wb")
-        pickle.dump(pls, pickle_out)
-        pickle_out.close()
 
         return ret
 
-    def printPlaylists(self):
-        fp = open("playlists.pkl", "rb")
-        dict = pickle.load(fp)
-        for id in dict:
-            print(dict[id])
-        fp.close()
-
-
-# TODO:  Look at response or figure out which songs were successfully inserted
  
