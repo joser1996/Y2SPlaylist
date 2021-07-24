@@ -243,11 +243,10 @@ def synchronizePlaylists():
 		refreshAccessToken()
 	spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
 	youtube = YouTubeClient(os.environ.get('GOOGLE_API_KEY'))
-	ps = PlaylistSyncer()
 	dbClient = DBClient()
 	#get playlists to synchronize
 	results = dbClient.getLinks()
-
+	print("Synchronizing")
 	for key in results:
 		link = results[key]
 		yt_id = link[1]
@@ -265,6 +264,7 @@ def synchronizePlaylists():
 				return
 			if processed_tracks:
 				dbClient.addTracksToLocal(yt_id, sp_id, processed_tracks)
-
+	print("Done Syncing!")
+	sleep(1)
 
 

@@ -85,9 +85,10 @@ class DBClient:
 			cursor.execute(query, (link_id,))
 		except self.db.connector.Error as err:
 			self.processSQLError(err)
+
 		processed_titles = []
 		for (track_name) in cursor:
-			processed_titles.append(track_name)
+			processed_titles.append(track_name[0])
 		songsToAdd = list(set(yt_songs) - set(processed_titles))
 		return songsToAdd
 
@@ -104,8 +105,6 @@ class DBClient:
 		try:
 			cursor.executemany(query, values)
 			self.db.commit()
-			print(cursor.rowcount, " was inserted")
-			sleep(2)
 		except self.db.connector.Error as err:
 			self.processSQLError(err)
 		cursor.close()
