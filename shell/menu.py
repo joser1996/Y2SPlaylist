@@ -4,10 +4,10 @@ from time import sleep
 from dotenv import load_dotenv
 from pathlib import Path
 import math
-
 load_dotenv(Path('../.env'))
 sys.path.append(os.environ.get('CLASS_FOLDER_PATH'))
 sys.path.append(os.environ.get('ROOT_FOLDER_PATH'))
+
 from SpotifyClient import SpotifyClient
 from YouTubeClient import YouTubeClient
 from PlaylistSyncer import PlaylistSyncer
@@ -17,12 +17,10 @@ from helpers import *
 
 def printMessage(string):
 	print("Message: ", string)
-
-def clearScreen():
-	os.system('clear')
+	sleep(2)
 
 def displayTitle():
-	clearScreen()
+	os.system('clear')
 	print("\t\t**********************************************")
 	print("\t\t*******  Welcome - Harambe and friends *******")
 	print("\t\t**********************************************")
@@ -35,21 +33,39 @@ def displayPrompts():
 	print("[s]:\tSynchronize Playlists")
 	print("[q]:\tQuit")
 
+def processChoice(choice):
+	displayTitle()
+	if choice == '1':
+		printSpotifyPlaylists()
+	elif choice == '2':
+		printYoutubePlaylists()
+	elif choice == '3':
+		linkPlaylists()
+	elif choice == '4':
+		printLinkedPlaylists()
+	elif choice == 's':
+		synchronizePlaylists()
+	elif choice == 'q':
+		os.system('clear')
+
+
 def printSpotifyPlaylists():
 	if not tokenIsFresh():
 		refreshAccessToken()
-	dotenv_path = Path('../.env')
-	load_dotenv(dotenv_path=dotenv_path)
 	sp = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
-	playlists = sp.getPlaylists()
-	printList(playlists)
+	playlist_items = sp.getPlaylists()
+	playlist_titles = []
+	for item in playlist_items:
+		playlist_titles.append(item[0])
+	printList(playlist_titles)
 
 def printYoutubePlaylists():
-	dotenv_path = Path('../.env')
-	load_dotenv()
-	yt = YouTubeClient(os.environ.get('GOOGLE_API_KEY'), os.environ.get('PL_ID'))
-	playlists = yt.getPlaylists()
-	printList(playlists)
+	yt = YouTubeClient(os.environ.get('GOOGLE_API_KEY'))
+	playlist_tupples = yt.getPlaylists()
+	playlist_titles = []
+	for tup in playlist_tupples:
+		playlist_titles.append(tup[0])
+	printList(playlist_titles)
 
 def printList(ls):
 	itemsPerPage = 6
@@ -74,7 +90,7 @@ def printList(ls):
 			print(f"\t\t\t\tPage: {currentPage}/{numberOfPages}")
 			print("[P]:\tPrevious")
 			print("[N]:\tNext")
-			print("[B]:\tQuit")
+			print("[B]:\tReturn to previous menu")
 			while True:
 				choice = input("What?")
 				if choice == 'p':
@@ -162,13 +178,11 @@ def printSelectList(ls):
 						continue
 					return number
 
-
 def printRow(item1, item2):
 	print("\t****************************************************************")
 	print("\t\t", item1, "\t\t\t", item2)
 	print("\t****************************************************************")
 	print()
-
 
 def printRowWithIndex(item1, item2, firstItemIndex):
 	if item2 is not None:
@@ -180,10 +194,9 @@ def printRowWithIndex(item1, item2, firstItemIndex):
 		print("\t\t", f"[{firstItemIndex}]{item1}", "\t\t\t", item2)
 		print("\t****************************************************************")		
 
-
 def linkPlaylists():
 	#get youtube playlist stuff
-	yt = YouTubeClient(os.environ.get("GOOGLE_API_KEY"), os.environ.get("PL_ID"))
+	yt = YouTubeClient(os.environ.get("GOOGLE_API_KEY"))
 	yt_lists = yt.getPlaylists()
 	yt_titles = []
 	for item in yt_lists:
@@ -209,18 +222,19 @@ def linkPlaylists():
 
 	dbClient = DBClient()
 	dbClient.insertLink(link)
-	sleep(3)
-	dbClient.showLinks()
-	print("Dumping")
-	sleep(5)
 
 
 def printLinkedPlaylists():
 	dbClient = DBClient()
 	displayTitle()
 	print()
-	all_links = dbClient.showLinks()
-	printList(all_links)
+	all_links = dbClient.getLinks()
+	links = []
+	for key in all_links:
+		link = all_links[key]
+		string = link[0] + " <----> " + link[2]
+		links.append(string)
+	printList(links)
 
 
 def synchronizePlaylists():
@@ -228,41 +242,29 @@ def synchronizePlaylists():
 	if(not tokenIsFresh()):
 		refreshAccessToken()
 	spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
-	youtube = YouTubeClient(os.environ.get('GOOGLE_API_KEY'), os.environ.get('PL_ID'))
+	youtube = YouTubeClient(os.environ.get('GOOGLE_API_KEY'))
 	ps = PlaylistSyncer()
 	dbClient = DBClient()
 	#get playlists to synchronize
-	links = dbClient.getLinks()
+	results = dbClient.getLinks()
 
-	for link in links:
-		yt_id = link[0]
-		sp_id = link[1]
+	for key in results:
+		link = results[key]
+		yt_id = link[1]
+		sp_id = link[3]
 		#get youtube songs for playlist
 		yt_songs = youtube.getPlaylistItems(yt_id)
 		delta = dbClient.getTrackDifferences(yt_id, sp_id, yt_songs)
-		print("Delta: ", delta)
-		sleep(2)
+		#IF None is returned
+		if not delta:
+			return 
 		if delta:
 			#make sure it's inserting to correct ps of id: sp_id
-			processed = spotify.insertSongs(delta, sp_id)
-			print("Processed: ", processed)
-			sleep(2)
-			if delta:
-				dbClient.addTracksToLocal(yt_id, sp_id, delta)
+			processed_tracks = spotify.insertSongs(delta, sp_id)
+			if not processed_tracks:
+				return
+			if processed_tracks:
+				dbClient.addTracksToLocal(yt_id, sp_id, processed_tracks)
 
 
 
-def processChoice(choice):
-	displayTitle()
-	if choice == '1':
-		printSpotifyPlaylists()
-	elif choice == '2':
-		printYoutubePlaylists()
-	elif choice == '3':
-		linkPlaylists()
-	elif choice == '4':
-		printLinkedPlaylists()
-	elif choice == 's':
-		synchronizePlaylists()
-	elif choice == 'q':
-		clearScreen()

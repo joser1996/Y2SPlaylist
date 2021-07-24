@@ -30,7 +30,7 @@ class DBClient:
 
 	def insertLink(self, link):
 		query = """
-		INSERT INTO links
+		INSERT IGNORE INTO links
 		(yt_playlist_name, yt_playlist_id, sp_playlist_name, sp_playlist_id)
 		VALUES (%s, %s, %s, %s);
 		"""
@@ -64,14 +64,12 @@ class DBClient:
 		except self.db.connector.Error as err:
 			self.processSQLError(err)
 		lid = None
-		if not cursor.rowcount:
-			print("No results found for linkID")
-			return lid
 		for (link_id) in cursor:
-			lid = link_id
+			lid = link_id[0]
 			break
+
 		cursor.close()
-		return lid[0]
+		return lid
 
 	#returns list of track names to be proccessed(YT Songs) else returns None
 	def getTrackDifferences(self, yt_pl_id, sp_pl_id, yt_songs):
@@ -80,12 +78,11 @@ class DBClient:
 			print(f"No Link was found.")
 			sleep(2)
 			return None
-
 		#get tracks that have already been processed
 		query = "SELECT track_name FROM processed_tracks WHERE link_id = %s;"
 		cursor = self.db.cursor()
 		try:
-			cursor.execute(query, (link_id))
+			cursor.execute(query, (link_id,))
 		except self.db.connector.Error as err:
 			self.processSQLError(err)
 		processed_titles = []
@@ -99,8 +96,8 @@ class DBClient:
 		link_id = self.getLinkId(yt_pl_id, sp_pl_id)
 		query = "INSERT INTO processed_tracks (link_id, track_name, track_uri) VALUES (%s, %s, %s);"
 		values = []
-		for uri in processed:
-			track_name = processed[uri]
+		for uri in addedTracks:
+			track_name = addedTracks[uri]
 			values.append((link_id, track_name, uri))
 
 		cursor = self.db.cursor()
@@ -112,4 +109,22 @@ class DBClient:
 		except self.db.connector.Error as err:
 			self.processSQLError(err)
 		cursor.close()
+"""
+CREATE TABLE test (
+   id INT NOT NULL AUTO_INCREMENT,
+   youtube TEXT NOT NULL,
+   spotify TEXT NOT NULL,
+   PRIMARY KEY (id)
+);
+"""
 
+"""
+CREATE TABLE links (
+	id INT NOT NULL AUTO_INCREMENT,
+	yt_playlist_name 
+);
+"""
+
+"""
+ALTER UNIQUE
+"""

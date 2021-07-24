@@ -25,14 +25,16 @@ class SpotifyClient:
         tokens = pickle.load(open('tokens.pkl', 'rb'))
         a_token = self.getCurrentToken()
         track_uris = []
+        ret = {}
         for song in songs:
             try:
                 uri = self.getTrackURI(song)
                 track_uris.append(uri)
+                ret[uri] = song
             except:
                 print("Song: ", song, " NOT FOUND!")
         if not track_uris:
-            return
+            return None
 
         body = {'uris': track_uris, 'position': 0}
         header = {
@@ -44,9 +46,8 @@ class SpotifyClient:
             json=body,
             headers=header
         )
-        print("Done Inserting into spotify")
-        sleep(3)
-        return track_uris 
+
+        return ret 
 
     #return: tokens:string
     def getCurrentToken(self):

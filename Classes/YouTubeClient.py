@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import json
 
 class YouTubeClient:
-    def __init__(self, key, playlistID):
+    def __init__(self, key):
         self.youtube = build('youtube', 'v3', developerKey=key)
 
     #returns list of track names in plalist with id: playlistID
