@@ -7,6 +7,7 @@ import time
 import sys
 import pickle
 import re
+from time import sleep
 
 class SpotifyClient:
     def __init__(self, client_id, client_secret):
@@ -29,7 +30,7 @@ class SpotifyClient:
                 ar.append(uri)
             except:
                 print("Song: ", song, " NOT FOUND!")
-
+        sleep(2)
         #print("URIS: ", ar)
         self.uris = ar
         if not ar:
@@ -46,6 +47,8 @@ class SpotifyClient:
             headers=header
         )
         print("Insert Response: ", res.json())
+        sleep(3)
+        return ar
 
     def getCurrentToken(self):
         tokens = pickle.load(open('tokens.pkl', 'rb'))

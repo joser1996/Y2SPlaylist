@@ -10,6 +10,8 @@ sys.path.append(os.environ.get('CLASS_FOLDER_PATH'))
 sys.path.append(os.environ.get('ROOT_FOLDER_PATH'))
 from SpotifyClient import SpotifyClient
 from YouTubeClient import YouTubeClient
+from PlaylistSyncer import PlaylistSyncer
+
 from DBClient import DBClient
 from helpers import *
 
@@ -30,6 +32,7 @@ def displayPrompts():
 	print("[2]:\tSee YouTube playlists")
 	print("[3]:\tLink playlists")
 	print("[4]:\tSee Linked playlists")
+	print("[s]:\tSynchronize Playlists")
 	print("[q]:\tQuit")
 
 def printSpotifyPlaylists():
@@ -144,11 +147,11 @@ def printSelectList(ls):
 					currentPage = currentPage + 1
 					if currentPage > numberOfPages:
 						currentPage = numberOfPages
-					firstItem = (currentPage - 1) * itemsPerPage
-					lastItem = (currentPage * itemsPerPage) - 1
-					if lastItem > len(ls) - 1:
-						lastItem = len(ls) - 1
-					currentItem = firstItem
+					firstItemIndex = (currentPage - 1) * itemsPerPage
+					lastItemIndex = (currentPage * itemsPerPage) - 1
+					if lastItemIndex > len(ls) - 1:
+						lastItemIndex = len(ls) - 1
+					currentItemIndex = firstItemIndex
 					displayTitle()
 					print()
 					break
@@ -178,7 +181,6 @@ def printRowWithIndex(item1, item2, firstItemIndex):
 		print("\t****************************************************************")		
 
 
-#TODO: Create database to store linked playlist information
 def linkPlaylists():
 	#get youtube playlist stuff
 	yt = YouTubeClient(os.environ.get("GOOGLE_API_KEY"), os.environ.get("PL_ID"))
@@ -220,6 +222,36 @@ def printLinkedPlaylists():
 	all_links = dbClient.showLinks()
 	printList(all_links)
 
+
+def synchronizePlaylists():
+	#make sure spotify tokens are up to date
+	if(not tokenIsFresh()):
+		refreshAccessToken()
+	spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
+	youtube = YouTubeClient(os.environ.get('GOOGLE_API_KEY'), os.environ.get('PL_ID'))
+	ps = PlaylistSyncer()
+	dbClient = DBClient()
+	#get playlists to synchronize
+	links = dbClient.getLinks()
+
+	for link in links:
+		yt_id = link[0]
+		sp_id = link[1]
+		#get youtube songs for playlist
+		yt_songs = youtube.getPlaylistItems(yt_id)
+		delta = dbClient.getTrackDifferences(yt_id, sp_id, yt_songs)
+		print("Delta: ", delta)
+		sleep(2)
+		if delta:
+			#make sure it's inserting to correct ps of id: sp_id
+			processed = spotify.insertSongs(delta, sp_id)
+			print("Processed: ", processed)
+			sleep(2)
+			if delta:
+				dbClient.addTracksToLocal(yt_id, sp_id, delta)
+
+
+
 def processChoice(choice):
 	displayTitle()
 	if choice == '1':
@@ -230,5 +262,7 @@ def processChoice(choice):
 		linkPlaylists()
 	elif choice == '4':
 		printLinkedPlaylists()
+	elif choice == 's':
+		synchronizePlaylists()
 	elif choice == 'q':
 		clearScreen()

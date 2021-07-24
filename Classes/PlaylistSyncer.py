@@ -26,6 +26,12 @@ class PlaylistSyncer:
         #print("Track differences are: ", differences)
         return differences
 
+    def getTrackDifferencesDB(self, yt_id, sp_id):
+        #get local tracks for link
+        #compare to what is on spotify and get
+        differences = list(set(upstreamTrackList) - set(localTracks))
+        return differences
+
     def addTracksToLocal(self, tracks):
         for track in tracks:
             self.localTracks.append(track)
