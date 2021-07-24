@@ -251,6 +251,8 @@ def synchronizePlaylists():
 		link = results[key]
 		yt_id = link[1]
 		sp_id = link[3]
+		print(f"Syncing Link: Id:{key} {link[0]} <----> {link[2]}")
+		sleep(2)
 		#get youtube songs for playlist
 		yt_songs = youtube.getPlaylistItems(yt_id)
 		delta = dbClient.getTrackDifferences(yt_id, sp_id, yt_songs)
@@ -260,11 +262,8 @@ def synchronizePlaylists():
 		if delta:
 			#make sure it's inserting to correct ps of id: sp_id
 			processed_tracks = spotify.insertSongs(delta, sp_id)
-			if not processed_tracks:
-				return
 			if processed_tracks:
 				dbClient.addTracksToLocal(yt_id, sp_id, processed_tracks)
-	print("Done Syncing!")
-	sleep(1)
+	
 
 
