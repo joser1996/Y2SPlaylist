@@ -183,7 +183,6 @@ class SpotifyClient:
             success = False
         return {"status": success, "msg": "Done"}
 
-
     def getUserId(self):
         profile = self.getUserProfile()
         return profile["id"]
