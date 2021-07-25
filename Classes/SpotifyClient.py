@@ -161,15 +161,28 @@ class SpotifyClient:
 
     #This is the same as unfollowing a playlist
     def deletePlaylist(self, pl_id):
-        endPoint = f"https://api.spotify.com/v1/playlists{pl_id}/followers"
-        if not tokenIsFresh()
+        if not pl_id:
+            return {"status": False, "msg": "No playlist ID provided"}
+        endPoint = f"https://api.spotify.com/v1/playlists/{pl_id}/followers"
+        if not tokenIsFresh():
             refreshAccessToken()
         access_token = self.getCurrentToken()
         header = {
             "Authorization": "Bearer {}".format(access_token),
             "Content-Type": "application/json"
         }
-        
+
+        response = requests.delete(
+            url=endPoint,
+            headers=header
+        )
+        success = False
+        if response.status_code == 200:
+            success = True
+        else:
+            success = False
+        return {"status": success, "msg": "Done"}
+
 
     def getUserId(self):
         profile = self.getUserProfile()
