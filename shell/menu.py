@@ -34,6 +34,7 @@ def displayPrompts():
 	print("[2]:\tSee YouTube playlists")
 	print("[3]:\tLink playlists")
 	print("[4]:\tSee Linked playlists")
+	print("[5]:\tEdit Playlists")
 	print("[s]:\tSynchronize Playlists")
 	print("[q]:\tQuit")
 
@@ -47,10 +48,99 @@ def processChoice(choice):
 		linkPlaylists()
 	elif choice == '4':
 		printLinkedPlaylists()
+	elif choice == '5':
+		editPlaylists()
 	elif choice == 's':
 		synchronizePlaylists()
 	elif choice == 'q':
 		os.system('clear')
+
+
+def deleteSPPlaylist():
+	print("In deleteSPPlaylist")
+	sleep(2)
+	return True
+
+def createSPPlaylist():
+	delayedMessage("In createSPPlaylist")
+	return True
+
+def editPrompts():
+	displayTitle()
+	print("[1]\tDelete Playlist")
+	print("[2]\tCreate Playlist")
+	print("[3]\tDisplay Playlists")
+	print("[r]\tReturn")	
+
+def editSpotifyPlaylists():
+	editPrompts()
+	DONE = False
+	while not DONE:
+		choice = input("Input: ")
+		if choice == "1":
+			DONE = deleteSPPlaylist()
+		elif choice == "2":
+			DONE = createSPPlaylist()
+		elif choice == "3":
+			displayTitle()
+			printSpotifyPlaylists()
+			print("Returned to edit sp")
+			sleep(2)
+			DONE = True
+		elif choice == "r":
+			return True
+
+def deleteYTPlaylist():
+	print("in deleteYTPlaylist")
+	sleep(2)
+	return True
+
+def createYTPlaylist():
+	print("In createYTPlaylist")
+	sleep(2)
+	return True
+
+def delayedMessage(msg):
+	print(msg)
+	sleep(2)
+
+def editYouTubePlaylists():
+	editPrompts()
+	DONE = False
+	while not DONE:
+		choice = input("Input: ")
+		if choice == "1":
+			DONE = deleteYTPlaylist()
+		elif choice == "2":
+			DONE = createYTPlaylist()
+		elif choice == "3":
+			displayTitle()
+			printYoutubePlaylists()
+			print("Returned to edit yt")
+			sleep(2)
+			DONE = True
+		elif choice == "r":
+			return True
+	return True
+
+def editPlaylists():
+	displayTitle()
+	print("[1]\tEdit YouTube playlists.")
+	print("[2]\tEdit Spotify playlists.")
+	print("[r]\tReturn")
+	DONE = False
+	while not DONE:
+		choice = input("Input: ")
+		if choice == '1':
+			DONE = editYouTubePlaylists()
+		elif choice == '2':
+			DONE = editSpotifyPlaylists()
+		elif choice == 'r':
+			return
+
+
+
+
 
 def printSpotifyPlaylists():
 	if not tokenIsFresh():
@@ -237,7 +327,6 @@ def linkPlaylists():
 	dbClient = DBClient()
 	dbClient.insertLink(link)
 
-
 def printLinkedPlaylists():
 	dbClient = DBClient()
 	displayTitle()
@@ -249,7 +338,6 @@ def printLinkedPlaylists():
 		string = link[0] + " <----> " + link[2]
 		links.append(string)
 	printList(links)
-
 
 def synchronizePlaylists():
 	#make sure spotify tokens are up to date

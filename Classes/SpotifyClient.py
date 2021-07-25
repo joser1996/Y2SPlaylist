@@ -8,6 +8,11 @@ import sys
 import pickle
 import re
 from time import sleep
+from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv(Path("../.env"))
+sys.path.append(os.environ.get('ROOT_FOLDER_PATH'))
+from helpers import *
 
 class SpotifyClient:
     def __init__(self, client_id, client_secret):
@@ -125,4 +130,63 @@ class SpotifyClient:
 
         return ret
 
- 
+    def createPlaylist(self, name = None, desc = "N/A"):
+        if not name:
+            msg = "Must provide playlist Name"
+            response = {"status": False, "Message": msg}
+            return response
+        if not tokenIsFresh():
+            refreshAccessToken()
+        user_id = self.getUserId()
+        endPoint = f"https://api.spotify.com/v1/users/{user_id}/playlists"
+        access_token = self.getCurrentToken()
+        header = {
+            "Authorization": "Bearer {}".format(access_token),
+            "Content-Type": "application/json"
+        }
+        body ={
+            "name": name,
+            "public": False,
+            "description": desc
+        }
+        response = requests.post(
+            url=endPoint,
+            json=body,
+            headers=header
+        )
+        print("Response: ", response)
+        print()
+        print("JSON", response.json())
+        return {"status": True, "Message": "Done"}
+
+    #This is the same as unfollowing a playlist
+    def deletePlaylist(self, pl_id):
+        endPoint = f"https://api.spotify.com/v1/playlists{pl_id}/followers"
+        if not tokenIsFresh()
+            refreshAccessToken()
+        access_token = self.getCurrentToken()
+        header = {
+            "Authorization": "Bearer {}".format(access_token),
+            "Content-Type": "application/json"
+        }
+        
+
+    def getUserId(self):
+        profile = self.getUserProfile()
+        return profile["id"]
+
+    def getUserProfile(self):
+        endPoint = "https://api.spotify.com/v1/me"
+        if not tokenIsFresh():
+            refreshAccessToken()
+        access_token = self.getCurrentToken()
+        header = {
+            "Authorization": "Bearer {}".format(access_token),
+            "Content-Type": "application/json"
+        }
+        response = requests.get(
+            url=endPoint,
+            headers=header
+        )
+        userProfile = response.json()
+        return userProfile
