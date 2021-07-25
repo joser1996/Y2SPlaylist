@@ -49,6 +49,7 @@ class DBClient:
 			cursor.execute(query)
 		except self.db.connector.Error as err:
 			self.processSQLError(err)
+		
 		links = {}
 		for(link_id, yt_name, yt_id, sp_name, sp_id) in cursor:
 			links[link_id] = (yt_name, yt_id, sp_name, sp_id)

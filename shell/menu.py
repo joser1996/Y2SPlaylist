@@ -68,6 +68,9 @@ def printYoutubePlaylists():
 	printList(playlist_titles)
 
 def printList(ls):
+	if(len(ls) == 0):
+		msg = "No Items to show"
+		ls.append(msg)
 	itemsPerPage = 6
 	numberOfPages = math.ceil(len(ls) / itemsPerPage)
 	currentPage = 1
@@ -78,6 +81,7 @@ def printList(ls):
 	currentItem = firstItem
 	print()
 	RUNNING = True
+
 	while RUNNING:
 		if (currentItem + 1) >= len(ls):
 			printRow(ls[currentItem], None)
@@ -122,6 +126,9 @@ def printList(ls):
 					break
 
 def printSelectList(ls):
+	if(len(ls) == 0):
+		msg = "No Items to show"
+		ls.append(msg)
 	itemsPerPage = 6
 	numberOfPages = math.ceil(len(ls) / itemsPerPage)
 	currentPage = 1
@@ -179,6 +186,8 @@ def printSelectList(ls):
 					return number
 
 def printRow(item1, item2):
+	if not item2:
+		item2 = ""
 	print("\t****************************************************************")
 	print("\t\t", item1, "\t\t\t", item2)
 	print("\t****************************************************************")
@@ -265,5 +274,3 @@ def synchronizePlaylists():
 			if processed_tracks:
 				dbClient.addTracksToLocal(yt_id, sp_id, processed_tracks)
 	
-
-
