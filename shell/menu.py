@@ -25,6 +25,10 @@ def displayTitle():
 	print("\t\t*******  Welcome - Harambe and friends *******")
 	print("\t\t**********************************************")
 
+def displaySubTitle(subTitle):
+	print(f"\t\t\t\t{subTitle}")
+
+
 def displayPrompts():
 	print("\n[1]:\tSee Spotify playlists")
 	print("[2]:\tSee YouTube playlists")
@@ -47,7 +51,6 @@ def processChoice(choice):
 		synchronizePlaylists()
 	elif choice == 'q':
 		os.system('clear')
-
 
 def printSpotifyPlaylists():
 	if not tokenIsFresh():
@@ -210,6 +213,7 @@ def linkPlaylists():
 	yt_titles = []
 	for item in yt_lists:
 		yt_titles.append(item[0])
+	displaySubTitle("Youtube Playlists")
 	selected_index = printSelectList(yt_titles)
 	selected_yt = yt_lists[selected_index]
 
@@ -220,6 +224,7 @@ def linkPlaylists():
 
 	#Wipe screen here
 	displayTitle()
+	displaySubTitle("Spotify Playlists")
 	sp_lists = sp.getPlaylists()
 	sp_titles = []
 	for item in sp_lists:
