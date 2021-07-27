@@ -32,7 +32,6 @@ class SpotifyClient:
         track_uris = []
         ret = {}
         for song in songs:
-            print("Adding: ", song)
             try:
                 uri = self.getTrackURI(song)
                 track_uris.append(uri)

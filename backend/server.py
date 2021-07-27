@@ -24,7 +24,7 @@ def requestAuthorization():
 		'client_id': os.environ.get('SPOTIFY_CLIENT_ID'),
 		'response_type': 'code',
 		'redirect_uri': os.environ.get('SPOTIFY_URI'),
-		'scope': 'playlist-read-private playlist-modify-private'
+		'scope': 'playlist-read-private playlist-modify-private playlist-modify-public'
 	}
 	url = authAppEndpoint + urllib.parse.urlencode(getVars)
 	return redirect(url)
