@@ -62,7 +62,19 @@ def deleteSPPlaylist():
 	return True
 
 def createSPPlaylist():
-	delayedMessage("In createSPPlaylist")
+	spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
+	# get playlist name from user
+	playlistName = None
+	desc = None
+	while not playlistName:
+		playlistName = input("Enter playlist name:\t")
+
+	desc = input("Enter a short description:\t")
+
+	string = f"Creating playlist: {playlistName}"
+	delayedMessage(string)
+	spotify.createPlaylist(playlistName, desc)
+	delayedMessage("Done")
 	return True
 
 def editPrompts():
@@ -79,8 +91,10 @@ def editSpotifyPlaylists():
 		choice = input("Input: ")
 		if choice == "1":
 			DONE = deleteSPPlaylist()
+			editPrompts()
 		elif choice == "2":
 			DONE = createSPPlaylist()
+			editPrompts()
 		elif choice == "3":
 			displayTitle()
 			printSpotifyPlaylists()
@@ -89,6 +103,7 @@ def editSpotifyPlaylists():
 			DONE = True
 		elif choice == "r":
 			return True
+
 
 def deleteYTPlaylist():
 	print("in deleteYTPlaylist")

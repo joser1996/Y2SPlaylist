@@ -154,9 +154,9 @@ class SpotifyClient:
             json=body,
             headers=header
         )
-        print("Response: ", response)
-        print()
-        print("JSON", response.json())
+        #print("Response: ", response)
+        #print()
+        #print("JSON", response.json())
         return {"status": True, "Message": "Done"}
 
     #This is the same as unfollowing a playlist
