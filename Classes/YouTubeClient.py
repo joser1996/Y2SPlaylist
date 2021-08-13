@@ -6,8 +6,11 @@ from dotenv import load_dotenv
 import json
 
 class YouTubeClient:
-    def __init__(self, key):
-        self.youtube = build('youtube', 'v3', developerKey=key)
+    def __init__(self, key, access_token=None):
+        if access_token:
+            self.youtube = build('youtube', 'v3', access_token=access_token)
+        else:
+            self.youtube = build('youtube', 'v3', developerKey=key)
 
     #returns list of track names in plalist with id: playlistID
     def getPlaylistItems(self, playlistID):

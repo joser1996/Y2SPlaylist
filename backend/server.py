@@ -1,9 +1,11 @@
-from flask import Flask, redirect, request
+from flask import Flask, redirect, request, session
 from dotenv import load_dotenv
 from pathlib import Path
+from requests_oauthlib import OAuth2Session
 import requests
 import urllib
 import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 import pickle
 import time
 
@@ -16,6 +18,42 @@ app = Flask(__name__)
 def hello():
 	print('Hello World')
 	return 'Hello World'
+
+
+@app.route('/auth/google', methods = ['GET'])
+def googleRequestAuth():
+	auth_url = "https://accounts.google.com/o/oauth2/v2/auth"
+
+	scope = [
+	"https://www.googleapis.com/auth/youtube.force-ssl",
+	"https://www.googleapis.com/auth/youtube.upload"
+	]
+	google = OAuth2Session(os.environ.get('GOOGLE_CLIENT_ID'), scope=scope, redirect_uri=os.environ.get('GOOGLE_URI'))
+
+	authorization_url, state = google.authorization_url(auth_url,
+	#offline for refresh token
+	#force user to always click to authorize
+	access_type="offline", prompt="select_account")
+	#State is used to prevent CSRF
+	session['oauth_state'] = state
+	#should redirect us to log in
+	return redirect(authorization_url)
+
+
+@app.route('/google/auth/callback')
+def googleCallback():
+	token_url = "https://www.googleapis.com/oauth2/v4/token"
+	google = OAuth2Session(os.environ.get('GOOGLE_CLIENT_ID'), state=session['oauth_state'])
+	token = google.fetch_token(token_url,
+		client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
+		authorization_response=request.url
+	)
+	print("Got token: ", token)
+	yt = YouTubeClient("", token)
+	ls = yt.getPlaylists()
+	print("Playlists: ", ls)
+	return ls;
+
 
 @app.route('/request-auth', methods = ['GET'])
 def requestAuthorization():
@@ -109,4 +147,5 @@ def requestTokens(auth_code):
 #Route to handle 
 
 if __name__== '__main__':
+	app.secret_key = 'super duper secret key'
 	app.run(debug=True, host="localhost", port=8888)
