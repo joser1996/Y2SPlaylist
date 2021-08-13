@@ -57,8 +57,18 @@ def processChoice(choice):
 
 
 def deleteSPPlaylist():
-	print("In deleteSPPlaylist")
-	sleep(2)
+	spotify = SpotifyClient(os.environ.get('SPOTIFY_CLIENT_ID'), os.environ.get('SPOTIFY_SECRET'))
+	playlists = spotify.getPlaylists()
+	titles = []
+	for playlist in playlists:
+		titles.append(playlist[0])
+
+	titleIndex = printSelectList(titles)
+	msg = f"Playlist: {titles[titleIndex]} will be deleted"
+	delayedMessage(msg)
+	playlistToDelete = playlists[titleIndex]
+	spotify.deletePlaylist(playlistToDelete[1])
+	delayedMessage("Deleted")
 	return True
 
 def createSPPlaylist():
@@ -103,7 +113,6 @@ def editSpotifyPlaylists():
 			DONE = True
 		elif choice == "r":
 			return True
-
 
 def deleteYTPlaylist():
 	print("in deleteYTPlaylist")
@@ -152,10 +161,6 @@ def editPlaylists():
 			DONE = editSpotifyPlaylists()
 		elif choice == 'r':
 			return
-
-
-
-
 
 def printSpotifyPlaylists():
 	if not tokenIsFresh():
